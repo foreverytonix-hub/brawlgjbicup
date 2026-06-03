@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brawl GJBI Cup | 2026</title>
+    <style>
+        :root {
+            --cerna: #0a0a0a; --cervena: #ff003c; --modra: #0084ff; --zluta: #ffcc00; --bila: #ffffff;
+            --fialova-tma: #8a2be2; --fialova-svet: #da70d6; --oranova: #ff8c00; --seda: #1a1a1a;
+        }
+
+        body { font-family: 'Arial Black', sans-serif; background-color: var(--cerna); color: var(--bila); margin: 0; scroll-behavior: smooth; }
+
+        /* --- NAVIGACE --- */
+        nav { background: rgba(0,0,0,0.95); padding: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 3px solid var(--bila); display: flex; justify-content: center; gap: 20px; }
+        nav a { color: var(--bila); text-decoration: none; text-transform: uppercase; font-size: 0.8em; transition: 0.3s; }
+        nav a:hover { color: var(--zluta); transform: scale(1.1); }
+
+        /* --- HERO & ODPOČÍTÁVÁNÍ --- */
+        .hero { padding: 80px 20px; text-align: center; background: radial-gradient(circle, #222 0%, #000 100%); border-bottom: 5px solid var(--bila); }
+        .brawl-title { font-size: clamp(3em, 8vw, 6em); margin: 0; color: var(--zluta); text-transform: uppercase; text-shadow: 8px 8px 0px #000, 12px 12px 0px var(--cervena); }
+
+        #timer { display: flex; justify-content: center; gap: 10px; margin: 30px 0; }
+        .t-box { background: var(--seda); border: 3px solid var(--bila); padding: 15px; border-radius: 12px; min-width: 70px; }
+        .t-num { font-size: 2em; display: block; color: var(--zluta); }
+        .t-lab { font-size: 0.6em; color: #888; text-transform: uppercase; }
+
+        /* KAPACITA */
+        .cap-wrapper { max-width: 500px; margin: 20px auto; text-align: center; }
+        .cap-bar-bg { background: #222; border: 2px solid var(--bila); border-radius: 20px; height: 25px; overflow: hidden; position: relative; }
+        .cap-bar-fill { background: linear-gradient(90deg, var(--modra), var(--cervena)); height: 100%; width: 0%; transition: 1s ease-in-out; }
+        .cap-text { position: absolute; width: 100%; top: 3px; font-size: 0.8em; font-weight: bold; text-shadow: 1px 1px 2px black; }
+
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; max-width: 1200px; margin: -40px auto 40px; padding: 0 20px; }
+        .info-card { background: var(--seda); border: 3px solid var(--bila); padding: 20px; text-align: center; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .info-card strong { color: var(--zluta); display: block; margin-bottom: 5px; font-size: 1.1em; }
+
+        /* --- TÝMY --- */
+        .section { padding: 80px 20px; max-width: 1200px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; background: #111; border: 3px solid var(--bila); }
+        th { background: var(--modra); padding: 15px; border: 1px solid var(--bila); font-size: 0.8em; }
+        td { padding: 12px; border: 1px solid #333; text-align: center; font-family: sans-serif; }
+
+        /* --- MAPY (OPRAVENO) --- */
+        .maps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            align-items: start; /* Zabrání natahování sousedů */
+        }
+
+        .map-dropdown { background: var(--seda); border: 2px solid var(--bila); border-radius: 10px; overflow: hidden; }
+        .map-dropdown summary {
+            padding: 15px; cursor: pointer; list-style: none; font-weight: bold; text-align: center;
+            background: linear-gradient(45deg, #222, #333); transition: 0.3s;
+        }
+        .map-dropdown summary:hover { background: var(--modra); }
+        .map-dropdown[open] summary { border-bottom: 2px solid var(--bila); background: var(--cervena); }
+
+        .map-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; background: #000; }
+        .map-item { background: #1a1a1a; padding: 10px; border-left: 4px solid var(--zluta); border-radius: 5px; font-size: 0.9em; text-align: left; }
+        .map-item span { display: block; color: #888; font-size: 0.8em; }
+
+        .btn-main { background: var(--modra); color: white; padding: 20px 50px; text-decoration: none; border-radius: 10px; border: 4px solid var(--bila); display: inline-block; transition: 0.3s; font-size: 1.5em; box-shadow: 0 8px 0px #004488; }
+        .btn-main:hover { background: var(--cervena); transform: translateY(4px); box-shadow: 0 4px 0px #880022; }
+
+        footer { text-align: center; padding: 60px; border-top: 4px solid var(--bila); margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#start">Start</a>
+    <a href="#tymy">Týmy</a>
+    <a href="#info">Informace</a>
+    <a href="#pravidla">Pravidla</a>
+</nav>
+
+<section class="hero" id="start">
+    <h1 class="brawl-title">Brawl GJBI Cup</h1>
+    <div id="timer">
+        <div class="t-box"><span class="t-num" id="d">00</span><span class="t-lab">Dny</span></div>
+        <div class="t-box"><span class="t-num" id="h">00</span><span class="t-lab">Hod</span></div>
+        <div class="t-box"><span class="t-num" id="m">00</span><span class="t-lab">Min</span></div>
+        <div class="t-box" style="border-color: var(--cervena);"><span class="t-num" id="s">00</span><span class="t-lab">Sek</span></div>
+    </div>
+    <div class="cap-wrapper">
+        <div class="cap-bar-bg">
+            <div class="cap-bar-fill" id="bar"></div>
+            <div class="cap-text">OBSAZENO <span id="count">0</span> / 12 TÝMŮ</div>
+        </div>
+    </div>
+    <a href="https://forms.gle/VDjuG4Gte1A9JuxAA" class="btn-main">PŘIHLÁSIT TÝM</a>
+</section>
+
+<div class="info-grid">
+    <div class="info-card"><strong>📅 KDY?</strong>18. Června 2026<br></div>
+    <div class="info-card"><strong>📍 KDE?</strong>Gymnázium Ivančice</div>
+    <div class="info-card"><strong>👥 PRO KOHO?</strong>Žáci nižšího gymnázia</div>
+    <div class="info-card"><strong>🎮 FORMÁT</strong>3 vs 3<br>Ranked Draft</div>
+</div>
+
+<section class="section" id="tymy">
+    <h2 style="color: var(--zluta); text-align: center; font-size: 2.5em;">👥 REGISTROVANÉ TÝMY</h2>
+    <table id="teams-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Název týmu</th>
+                <th>Kapitán (C)</th>
+                <th>Hráč 2</th>
+                <th>Hráč 3</th>
+            </tr>
+        </thead>
+        <tbody id="teams-body">
+            <tr><td colspan="5">Načítám týmy...</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="section" id="info">
+    <h2 style="color: var(--modra); text-align: center; font-size: 2.5em;">🗺️ MAPY V TURNAJI</h2>
+    <div class="maps-container">
+        <details class="map-dropdown">
+            <summary>🏆 SKUPINY (1 vítezné)</summary>
+            <div class="map-list">
+                <div class="map-item">Sneaky Fields<span>Brawl Ball</span></div>
+                <div class="map-item">Deathcap Trap<span>Gem Grab</span></div>
+                <div class="map-item">Ring of Fire<span>Hot Zone</span></div>
+            </div>
+        </details>
+        <details class="map-dropdown">
+            <summary>⚔️ ČTVRTFINÁLE (2 vítězné)</summary>
+            <div class="map-list">
+                <div class="map-item">Shooting Star <span>Bounty</span></div>
+                <div class="map-item">Goldarm Gulch <span>Knockout</span></div>
+                <div class="map-item">Hot Potato<span>Heist</span></div>
+            </div>
+        </details>
+        <details class="map-dropdown">
+            <summary>🔥 SEMIFINÁLE (2 vítězné)</summary>
+            <div class="map-list">
+                <div class="map-item">Layer Cake<span>Bounty</span></div>
+                <div class="map-item">Triple Dribble<span>Brawl Ball</span></div>
+		<div class="map-item">Flaring Phoenix<span>Knotout</span></div>
+            </div>
+        </details>
+        <details class="map-dropdown">
+            <summary>👑 FINÁLE (3 vítězné)</summary>
+            <div class="map-list">
+		<div class="map-item">Gem Fort <span>Gem Grab</span></div>
+                <div class="map-item">Dueling Beetles<span>Hot Zone</span></div>
+                <div class="map-item">Bridge Too Far <span>Heist</span></div>
+                <div class="map-item">Out in the Open<span>Knockout</span></div>
+                <div class="map-item">Pinball Dreams<span>Brawl Ball</span></div>
+
+
+            </div>
+        </details>
+    </div>
+</section>
+<style>
+    /* Styl pro video sekci */
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    .video-box {
+        background: #111;
+        border: 3px solid var(--bila);
+        border-radius: 15px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .video-box:hover {
+        transform: translateY(-5px);
+        border-color: var(--zluta);
+    }
+
+    /* Aby video bylo responzivní (vždy v poměru 16:9) */
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        overflow: hidden;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .video-desc {
+        padding: 15px;
+        background: #1a1a1a;
+        font-size: 0.9em;
+        border-top: 2px solid var(--bila);
+    }
+
+    .video-desc strong {
+        color: var(--modra);
+        display: block;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+</style>
+<section class="section" id="videa">
+    <h2 style="color: var(--cervena); text-align: center; font-size: 2.5em; margin-top: 20px;">📺 VIDEO NÁVODY</h2>
+    
+    <div class="video-grid">
+        <div class="video-box">
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/09iu_ln685U" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="video-desc">
+                <strong>Založení lobby</strong>
+                Detailní návod jak postupovat při zakládání lobby Best of 3.
+            </div>
+        </div>
+
+        <div class="video-box">
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/phEMDs6j-Bw" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div class="video-desc">
+                <strong>Přidání hráče na základě supercel ID</strong>
+                Jak si přidat organizátora turnaje do friend listu, aby mohl sledovat vaše hry na turnaji.
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section" id="pravidla">
+    <h2 style="color: var(--zluta); text-align: center; font-size: 2.5em;">📜 PRAVIDLA</h2>
+
+    <details>
+        <summary>1. Základní povinnosti a etika</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Oficiální pravidla a školní řád:</strong> Všichni účastníci se musí řídit platným školním řádem GJBI a oficiálními pravidly hry Brawl Stars.</li>
+                <li><strong>Zákaz podvádění:</strong> Jakákoliv forma podvodu (např. využívání nekalých softwarových úprav nebo chyb ve hře) vede k okamžité diskvalifikaci celého týmu.</li>
+                <li><strong>Samostatnost:</strong> Týmy nesmí přijímat pomoc od nikoho mimo svůj soupis (platí pro draft, strategii i samotnou hru).</li>
+                <li><strong>Respekt a Fair Play:</strong> Je přísně zakázáno chovat se toxicky, urážet ostatní hráče nebo organizátory. Turnaj je o zábavě a vzájemném respektu.</li>
+                <li><strong>Nadhled:</strong> Emoce z prohry patří do hry, nikoliv do reality. Po zápase zůstáváme kolegy a přáteli.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>2. Co musí hráči dodržovat</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Dochvilnost:</strong> Hráči musí být připraveni na svém místě a včas reagovat na výzvy organizátora.</li>
+                <li><strong>Identita:</strong> Hráči musí hrát pod jmény, pod kterými se do turnaje přihlásili.</li>
+                <li><strong>Kontrola výsledků:</strong> Po odehrání zápasu se hráči dostaví k organizátorovi a předloží Battle Log ke kontrole a zaznamenání výsledku.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>3. Práva a pravidla organizátora</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Rozhodovací pravomoc:</strong> Organizátor má hlavní slovo při řešení sporných situací, nejasností nebo při výkladu pravidel.</li>
+                <li><strong>Vedení turnaje:</strong> Organizátor postupně vyhlašuje aktuální zápasy, vytváří/připojuje hráče do lobby a dává instrukce k zahájení hry.</li>
+                <li><strong>Dohled na férovost:</strong> Organizátor sleduje průběh zápasů, komentuje vybraná utkání a dohlíží na dodržování časového harmonogramu.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>4. Porušení pravidel a postihy</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <p>V případě, že hráč nebo tým poruší tato pravidla, může organizátor udělit následující postihy:</p>
+            <ul>
+                <li><strong>1. stupeň (Varování):</strong> Uděleno za menší prohřešky (např. mírné zdržování nebo nevhodné poznámky).</li>
+                <li><strong>2. stupeň (Diskvalifikace z turnaje):</strong> Uděleno za hrubé porušení pravidel, podvádění, toxické chování vůči ostatním nebo porušení školního řádu.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>5. Týmy a registrace</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Formát týmů:</strong> Hraje se formátem 3v3. Týmy se přihlašují předem přes připravený formulář.</li>
+                <li><strong>Fixní sestava:</strong> Sestava je během turnaje neměnná. V případě náhlé absence hráče kontaktujte organizátora, který situaci posoudí a povolí případné nasazení náhradníka.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>6. Herní systém a výběr postav</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Módy a mapy:</strong> Konkrétní módy a mapy pro jednotlivá kola jsou vypsány v samostatné sekci webu.</li>
+                <li><strong>Zákazy (Bany):</strong> Každý tým může před zápasem zabanovat 3 brawlery. Tyto bany platí pouze pro daný zápas + v banu je nejnovější brawler (Star Nova).</li>
+                <li><strong>Formát:</strong> Vždy se hraje ve formátu Best of 3 na určený počet výher.</li>
+                <li><strong>Herní fáze:</strong>
+                    <ul>
+                        <li><em>Skupinová část:</em> Týmy hrají proti každému týmu jen jedno bo3, první 2 týmy z každé skupiny postupují. Organizátor sleduje nejzajímavější hry.</li>
+                        <li><em>Čtvrtfinále:</em> Zápasy probíhají paralelně a hraje se na 2 vítězné sety systému bo3. Organizátor sleduje nejzajímavější celou hru (všechny sety).</li>
+                        <li><em>Semifinále:</em> Každý zápas se hraje zvlášť na 2 vítězné bo3, každá hra je sledována organizátorem.</li>
+                        <li><em>Finále:</em> Vrchol turnaje se hraje na tři vítězné hry formátu bo3. Každá hra je sledována organizátorem.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>7. Technické problémy a vybavení</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Technické potíže:</strong> Výpadek připojení nebo vybití telefonu jde na vrub hráče. Zápas se kvůli tomu neprodlužuje ani neopakuje a pokračuje se dál.</li>
+                <li><strong>Připojení a nabíjení:</strong> Ve škole je dostupná Wi-Fi i zásuvky, avšak kvůli vytížení sítě o přestávkách důrazně doporučujeme zajistit si vlastní mobilní data jako zálohu.</li>
+            </ul>
+        </div>
+    </details>
+
+    <details>
+        <summary>8. Časový harmonogram a ceny</summary>
+        <div style="padding:20px; line-height: 1.6;">
+            <ul>
+                <li><strong>Časový plán:</strong> Turnaj probíhá během školního dne. Začíná od 3. vyučovací hodiny a finále se odehraje krátce po 6. hodině.</li>
+                <li><strong>Ceny pro vítěze:</strong> O nejlepší umístění se hraje o zajímavé ceny sponzorované školním parlamentem.</li>
+            </ul>
+        </div>
+    </details>
+</section>
+<footer>
+    <div><h4>Organizátor: Dominik Holáň</h4><p>Web: Antonín Žaloudek </p></div>
+    <div><h4>LOKACE</h4><p>Gymnázium Jana Blahoslava, Ivančice</p></div>
+</footer>
+
+<script>
+    // ODPOČÍTÁVÁNÍ
+    const target = new Date("June 1, 2026 0:00:00").getTime();
+    setInterval(() => {
+        const now = new Date().getTime();
+        const d = target - now;
+        document.getElementById("d").innerText = Math.max(0, Math.floor(d / (1000 * 60 * 60 * 24)));
+        document.getElementById("h").innerText = Math.max(0, Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+        document.getElementById("m").innerText = Math.max(0, Math.floor((d % (1000 * 60 * 60)) / (1000 * 60)));
+        document.getElementById("s").innerText = Math.max(0, Math.floor((d % (1000 * 60)) / 1000));
+    }, 1000);
+
+    // NAČÍTÁNÍ TÝMŮ Z GOOGLE SHEETS
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRxsLISWHJ2qW1fGTHD1JeDTT_VynYGNM6DbQd84lb52Aa7rJTb10Xpm8nVJJvOZWhTQBKbI9HKOFPI/pub?output=csv';
+
+    async function loadTeams() {
+        try {
+            const response = await fetch(csvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1);
+            const tbody = document.getElementById('teams-body');
+            tbody.innerHTML = ''; 
+
+            let count = 0;
+            rows.forEach((row, index) => {
+                const columns = row.split(',');
+                if (columns.length >= 4 && columns[1].trim() !== "") {
+                    count++;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${count}</td>
+                        <td>${columns[1]}</td>
+                        <td>${columns[2]}</td>
+                        <td>${columns[3]}</td>
+                        <td>${columns[4]}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            const percent = (count / 12) * 100;
+            document.getElementById("bar").style.width = percent + "%";
+            document.getElementById("count").innerText = count;
+
+        } catch (error) {
+            console.error('Chyba:', error);
+            document.getElementById('teams-body').innerHTML = '<tr><td colspan="5">Nepodařilo se načíst data.</td></tr>';
+        }
+    }
+
+    loadTeams();
+</script>
+
+</body>
+</html>
